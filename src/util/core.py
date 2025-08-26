@@ -1,19 +1,20 @@
+import io
 import json
 import logging
 import os
 import re
-import shutil
 from typing import Dict, List
 
 import bs4
 import requests
+from PIL import Image
 
 from util.logger import Logger
 
 
-def download_images(items: List[Dict], url_key: str, name_key: str, save_dir: str, logger: Logger):
+def download_images(items: List[Dict], url_key: str, name_key: str, save_dir: str, logger: Logger) -> None:
     """
-    Download images from a list of items.
+    Download images from a list of items and save them as WebP files.
 
     :param items: A list of dictionaries containing image URLs and names.
     :param url_key: The key in the dictionary that contains the image URL.
@@ -27,7 +28,17 @@ def download_images(items: List[Dict], url_key: str, name_key: str, save_dir: st
         os.makedirs(save_dir)
         logger.info(f"Created directory: {save_dir}")
 
-    # Download each image
+    # Clear existing files in the directory
+    for filename in os.listdir(save_dir):
+        file_path = os.path.join(save_dir, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+                logger.debug(f"Deleted existing file: {file_path}")
+        except Exception as e:
+            logger.error(f"Failed to delete {file_path}: {e}")
+
+    # Download and save images
     for item in items:
         image_url = item.get(url_key)
         name = item.get(name_key)
@@ -37,23 +48,23 @@ def download_images(items: List[Dict], url_key: str, name_key: str, save_dir: st
             continue
 
         try:
-            sanitized_name = re.sub(r'[\\/*?:"<>|]', "", name)
-            file_extension = os.path.splitext(image_url)[1].split("?")[0]
-            if not file_extension:
-                file_extension = ".png"
-
-            filename = f"{sanitized_name}{file_extension}"
-            file_path = os.path.join(save_dir, filename)
-
-            with requests.get(image_url, stream=True) as r:
+            with requests.get(image_url) as r:
                 r.raise_for_status()
-                with open(file_path, "wb") as f:
-                    shutil.copyfileobj(r.raw, f)
-            logger.debug(f"Successfully downloaded image for {name}")
+                image_bytes = r.content
+
+            with Image.open(io.BytesIO(image_bytes)) as img:
+                sanitized_name = re.sub(r'[\\/*?:"<>|]', "", name)
+                filename = f"{sanitized_name}.webp"
+                file_path = os.path.join(save_dir, filename)
+
+                img.save(file_path, "webp")
+
+            logger.debug(f"Successfully downloaded and saved {name} as WebP.")
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to download image for {name}: {e}")
         except IOError as e:
-            logger.error(f"Failed to save image for {name}: {e}")
+            logger.error(f"Failed to process or save image for {name}: {e}")
 
     logger.info("Finished downloading images.")
 

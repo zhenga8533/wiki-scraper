@@ -23,3 +23,4 @@ ABILITY_URL = f"{PKMN_URL}/ability"
 # BALATRO
 BALATRO_URL = "https://balatrowiki.org"
 JOKER_URL = f"{BALATRO_URL}/w/Jokers"
+DECK_URL = f"{BALATRO_URL}/w/Decks"

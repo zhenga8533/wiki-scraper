@@ -1,4 +1,5 @@
-beautifulsoup4==latest
-dotenv==latest
-requests==latest
-unidecode==latest
+beautifulsoup4
+dotenv
+requests
+unidecode
+pillow
