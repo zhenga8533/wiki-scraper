@@ -1,11 +1,61 @@
 import json
 import logging
 import os
+import re
+import shutil
+from typing import Dict, List
 
 import bs4
 import requests
 
 from util.logger import Logger
+
+
+def download_images(items: List[Dict], url_key: str, name_key: str, save_dir: str, logger: Logger):
+    """
+    Download images from a list of items.
+
+    :param items: A list of dictionaries containing image URLs and names.
+    :param url_key: The key in the dictionary that contains the image URL.
+    :param name_key: The key in the dictionary that contains the image name.
+    :param save_dir: The directory to save the images to.
+    :param logger: The logger to log with.
+    :return: None
+    """
+
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        logger.info(f"Created directory: {save_dir}")
+
+    # Download each image
+    for item in items:
+        image_url = item.get(url_key)
+        name = item.get(name_key)
+
+        if not image_url or not name:
+            logger.warning(f"Missing URL or name for item: {item}")
+            continue
+
+        try:
+            sanitized_name = re.sub(r'[\\/*?:"<>|]', "", name)
+            file_extension = os.path.splitext(image_url)[1].split("?")[0]
+            if not file_extension:
+                file_extension = ".png"
+
+            filename = f"{sanitized_name}{file_extension}"
+            file_path = os.path.join(save_dir, filename)
+
+            with requests.get(image_url, stream=True) as r:
+                r.raise_for_status()
+                with open(file_path, "wb") as f:
+                    shutil.copyfileobj(r.raw, f)
+            logger.debug(f"Successfully downloaded image for {name}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to download image for {name}: {e}")
+        except IOError as e:
+            logger.error(f"Failed to save image for {name}: {e}")
+
+    logger.info("Finished downloading images.")
 
 
 def get_html(url: str, retries: int, logger: Logger) -> str:
