@@ -1,3 +1,5 @@
+TEMPLATE_URL = "https://example.com/template"
+
 # HSB
 HYPIXEL_URL = "https://wiki.hypixel.net"
 ENIGMA_SOUL_URL = f"{HYPIXEL_URL}/Enigma_Souls"
