@@ -1,9 +1,11 @@
-from logging import Logger
-import bs4
 import json
 import logging
 import os
+
+import bs4
 import requests
+
+from util.logger import Logger
 
 
 def get_html(url: str, retries: int, logger: Logger) -> str:
@@ -23,10 +25,10 @@ def get_html(url: str, retries: int, logger: Logger) -> str:
             response.raise_for_status()
             return response.text
         except requests.exceptions.RequestException as e:
-            logger.log(logging.ERROR, f"Attempt {i + 1}: Failed to get HTML from {url}")
-            logger.log(logging.ERROR, e)
+            logger.error(f"Attempt {i + 1}: Failed to get HTML from {url}")
+            logger.error(e.__str__())
 
-    logger.log(logging.ERROR, f"Failed to get HTML from {url} after {retries} attempts")
+    logger.error(f"Failed to get HTML from {url} after {retries} attempts")
     exit(1)
 
 
@@ -51,11 +53,11 @@ def save_html(html: str, file_name: str, logger: Logger):
             file.write(pretty_html)
             logger.log(logging.INFO, f"Saved HTML to {file_name}")
     except Exception as e:
-        logger.log(logging.ERROR, f"Failed to save HTML to {file_name}")
-        logger.log(logging.ERROR, e)
+        logger.error(f"Failed to save HTML to {file_name}")
+        logger.error(e.__str__())
 
 
-def save_json(data: dict, file_name: str, logger: Logger):
+def save_json(data: dict | list, file_name: str, logger: Logger):
     """
     Save JSON to a file.
 
@@ -72,5 +74,5 @@ def save_json(data: dict, file_name: str, logger: Logger):
             json.dump(data, file, indent=4)
             logger.log(logging.INFO, f"Saved JSON to {file_name}")
     except Exception as e:
-        logger.log(logging.ERROR, f"Failed to save JSON to {file_name}")
-        logger.log(logging.ERROR, e)
+        logger.error(f"Failed to save JSON to {file_name}")
+        logger.error(e.__str__())

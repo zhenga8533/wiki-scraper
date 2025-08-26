@@ -3,7 +3,7 @@ import os
 
 
 class Logger:
-    def __init__(self, name: str, path: str, log: bool) -> None:
+    def __init__(self, name: str, path: str, log: bool):
         """
         Initialize a logger object.
 
@@ -15,19 +15,7 @@ class Logger:
 
         self.logging = log
         self.logger = self.setup_logger(name, path)
-        self.log(logging.INFO, f"Logger initialized with name '{name}' and path '{path}'")
-
-    def log(self, level: int, message: str) -> None:
-        """
-        Log a message to the logger.
-
-        :param: level - Logging level
-        :param: message - Message to log
-        :return: None
-        """
-
-        if self.logging:
-            self.logger.log(level, message)
+        self.info(f"Logger.__init__: Logger initialized with name '{name}' and path '{path}'")
 
     def setup_logger(self, name: str, path: str) -> logging.Logger:
         """
@@ -50,7 +38,7 @@ class Logger:
             formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
             # File handler
-            file_handler = logging.FileHandler(path, mode="w")
+            file_handler = logging.FileHandler(path, mode="w", encoding="utf-8")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 
@@ -70,3 +58,74 @@ class Logger:
         """
 
         self.logging = logging
+
+    def log(self, level: int, message: str) -> None:
+        """
+        Log a message to the logger.
+
+        :param: level - Logging level
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            if type(level) is str:
+                level = getattr(logging, level.upper())
+                if not isinstance(level, int):
+                    raise ValueError(f"Invalid log level: {level}")
+            self.logger.log(level, message)
+
+    def info(self, message: str) -> None:
+        """
+        Log an info message to the logger.
+
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            self.log(logging.INFO, message)
+
+    def warning(self, message: str) -> None:
+        """
+        Log a warning message to the logger.
+
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            self.log(logging.WARNING, message)
+
+    def error(self, message: str) -> None:
+        """
+        Log an error message to the logger.
+
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            self.log(logging.ERROR, message)
+
+    def critical(self, message: str) -> None:
+        """
+        Log a critical message to the logger.
+
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            self.log(logging.CRITICAL, message)
+
+    def debug(self, message: str) -> None:
+        """
+        Log a debug message to the logger.
+
+        :param: message - Message to log
+        :return: None
+        """
+
+        if self.logging:
+            self.log(logging.DEBUG, message)
