@@ -19,3 +19,7 @@ PKMN_URL = "https://pokemondb.net"
 PKDX_URL = f"{PKMN_URL}/pokedex/"
 MOVES_URL = f"{PKMN_URL}/move/all"
 ABILITY_URL = f"{PKMN_URL}/ability"
+
+# BALATRO
+BALATRO_URL = "https://balatrowiki.org"
+JOKER_URL = f"{BALATRO_URL}/w/Jokers"

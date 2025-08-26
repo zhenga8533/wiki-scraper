@@ -40,8 +40,8 @@ def main():
 
     # Scrape
     html = get_html(TEMPLATE_URL, RETRIES, logger)
-    locations = get_test(html, RETRIES, logger)
-    save_json(locations, "test.json", logger)
+    template = get_test(html, RETRIES, logger)
+    save_json(template, "template.json", logger)
 
 
 if __name__ == "__main__":
